@@ -6,14 +6,6 @@
 #include <string>
 #include <iomanip>
 
-/*#include <vector>
-#include <map>
-#include <algorithm>
-#include <numeric>*/
-
-
-
-
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Storage.Streams.h>
@@ -51,18 +43,27 @@ class Device {
 		winrt::hstring name;
 		uint64_t address;
 		BluetoothLEDevice device = BluetoothLEDevice(NULL);
-		IVector<GattCharacteristic> readableChar;
-		IVector<GattCharacteristic> writableChar;
-		IVector<GattCharacteristic> notifiableChar;
+		vector<GattCharacteristic> readableChar;
+		vector<GattCharacteristic> writableChar;
+		vector<GattCharacteristic> notifiableChar;
+		vector<GattCharacteristic> indicatableChar;
 
 	public:
 		Device(string n, uint64_t a);
 		void search();
 		void searchChar();
+
 		void read(GattCharacteristic charac);
-		void write(GattCharacteristic charac);
+		void write(GattCharacteristic charac, vector<uint8_t> data);
+		void notify(GattCharacteristic charac);
+		void indicate(GattCharacteristic charac);
+		
 		void OnCompletedRead(IAsyncOperation<GattReadResult> const &op, AsyncStatus const &state);
-		void OnCompletedWrite(IAsyncOperation<GattReadResult> const &op, AsyncStatus const &state);
+		void OnCompletedWrite(IAsyncOperation<GattCommunicationStatus> const &op, AsyncStatus const &state);
+		void OnCompletedNotify(IAsyncOperation<GattCommunicationStatus> const &op, AsyncStatus const &state);
+		void OnCompletedIndicate(IAsyncOperation<GattCommunicationStatus> const &op, AsyncStatus const &state);
+		void OnNotify(GattCharacteristic  const & watcher, GattValueChangedEventArgs  const & args);
+		void OnIndicate(GattCharacteristic  const & watcher, GattValueChangedEventArgs  const & args);
 
 		string getName();
 		string getDeviceId();
