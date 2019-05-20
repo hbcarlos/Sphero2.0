@@ -28,3 +28,9 @@
 *.app
 
 .vs/
+Debug/
+BLE/Debug/
+Sphero/Debug/
+SpheroDll/Debug/
+SpheroLib/Debug/
+Test/Debug/
