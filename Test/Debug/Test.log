@@ -1,0 +1,6 @@
+﻿  Test.cpp
+c:\users\carlos\dropbox\informatica\robotica\sphero\spherolib\test\include\sphero.h(12): warning C4005: '_WIN32': redefinición de macro
+  c:\users\carlos\dropbox\informatica\robotica\sphero\spherolib\test\test.cpp: note: vea la definición anterior de '_WIN32'
+c:\users\carlos\dropbox\informatica\robotica\sphero\spherolib\test\test.cpp(535): warning C4305: 'argumento': truncamiento de '__int64' a 'const ushort'
+c:\users\carlos\dropbox\informatica\robotica\sphero\spherolib\test\test.cpp(535): warning C4309: 'argumento': truncamiento de valor constante
+  Test.vcxproj -> C:\Users\carlos\Dropbox\Informatica\Robotica\Sphero\Spherolib\Debug\Test.exe

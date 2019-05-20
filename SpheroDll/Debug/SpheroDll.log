@@ -1,0 +1,35 @@
+﻿  stdafx.cpp
+  dllmain.cpp
+  Sphero.cpp
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.h(12): warning C4005: '_WIN32': redefinición de macro
+  c:\users\carlos\source\repos\spherolib\spherodll\stdafx.cpp: note: vea la definición anterior de '_WIN32'
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(66): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(67): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(69): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(70): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(72): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(73): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(193): warning C4244: '=': conversión de 'double' a 'float'; posible pérdida de datos
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(279): warning C4244: 'inicializando': conversión de 'double' a 'ushort'; posible pérdida de datos
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(280): warning C4244: 'inicializando': conversión de 'double' a 'ushort'; posible pérdida de datos
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(471): warning C4244: '=': conversión de 'double' a 'int'; posible pérdida de datos
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(576): warning C4805: '|': combinación no segura del tipo 'int' y el tipo 'const bool' en la operación
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(1578): warning C4018: '<': no coinciden signed/unsigned
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(1594): warning C4018: '<': no coinciden signed/unsigned
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(1794): warning C4018: '<': no coinciden signed/unsigned
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(1808): warning C4018: '<': no coinciden signed/unsigned
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.cpp(1822): warning C4018: '<': no coinciden signed/unsigned
+  SpheroDll.cpp
+c:\users\carlos\source\repos\spherolib\spherodll\sphero.h(12): warning C4005: '_WIN32': redefinición de macro
+  c:\users\carlos\source\repos\spherolib\spherodll\stdafx.cpp: note: vea la definición anterior de '_WIN32'
+  WinAdaptor.cpp
+c:\users\carlos\source\repos\spherolib\spherodll\winadaptor.cpp(248): warning C4018: '<': no coinciden signed/unsigned
+c:\users\carlos\source\repos\spherolib\spherodll\winadaptor.cpp(274): warning C4018: '<': no coinciden signed/unsigned
+c:\users\carlos\source\repos\spherolib\spherodll\winadaptor.cpp(413): warning C4267: 'argumento': conversión de 'size_t' a '_Ty'; posible pérdida de datos
+          with
+          [
+              _Ty=ubyte
+          ]
+  Generando código...
+     Creando biblioteca C:\Users\carlos\source\repos\Spherolib\Debug\SpheroDll.lib y objeto C:\Users\carlos\source\repos\Spherolib\Debug\SpheroDll.exp
+  SpheroDll.vcxproj -> C:\Users\carlos\source\repos\Spherolib\Debug\SpheroDll.dll

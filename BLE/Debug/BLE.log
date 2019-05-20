@@ -1,0 +1,7 @@
+﻿  Device.cpp
+c:\users\carlos\dropbox\informatica\robotica\sphero\spherolib\ble\device.cpp(29): warning C4244: 'return': conversión de 'uint64_t' a 'ULONG'; posible pérdida de datos
+c:\users\carlos\dropbox\informatica\robotica\sphero\spherolib\ble\device.cpp(74): warning C4018: '<': no coinciden signed/unsigned
+c:\users\carlos\dropbox\informatica\robotica\sphero\spherolib\ble\device.cpp(83): warning C4018: '<': no coinciden signed/unsigned
+c:\users\carlos\dropbox\informatica\robotica\sphero\spherolib\ble\device.cpp(98): warning C4018: '<': no coinciden signed/unsigned
+c:\users\carlos\dropbox\informatica\robotica\sphero\spherolib\ble\device.cpp(159): warning C4018: '<': no coinciden signed/unsigned
+  BLE.vcxproj -> C:\Users\carlos\Dropbox\Informatica\Robotica\Sphero\Spherolib\Debug\BLE.exe
