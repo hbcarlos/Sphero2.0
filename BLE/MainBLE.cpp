@@ -15,7 +15,8 @@ int main(int argc, const char * argv[]) {
 
 	Device dev = Device(name, addres);
 	std::cout << dev.getName() << std::endl;
-	std::cout << dev.getAll() << std::endl;
+	//std::cout << dev.getAll() << std::endl;
+	dev.searchChar();
 
 	system("pause");
 	return(0);

@@ -1,4 +1,0 @@
-﻿  Main.cpp
-c:\users\carlos\source\repos\spherolib\sphero\main.cpp(419): warning C4305: 'argumento': truncamiento de '__int64' a 'const ushort'
-c:\users\carlos\source\repos\spherolib\sphero\main.cpp(419): warning C4309: 'argumento': truncamiento de valor constante
-  Sphero.vcxproj -> C:\Users\carlos\source\repos\Spherolib\Debug\Sphero.exe

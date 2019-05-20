@@ -4,6 +4,10 @@ Device::Device(string n, uint64_t a) {
 	name = winrt::to_hstring(n);
 	address = a;
 
+	readableChar = IVector<GattCharacteristic>();
+	writableChar = IVector<GattCharacteristic>();
+	notifiableChar = IVector<GattCharacteristic>();
+
 	Scanner scaner = Scanner(name, 0);
 	device = scaner.getDevice();
 }
@@ -11,6 +15,82 @@ Device::Device(string n, uint64_t a) {
 void Device::search() {
 	Scanner scaner = Scanner(name, address);
 	device = scaner.getDevice();
+}
+
+void Device::searchChar() {
+	IVectorView<GattDeviceService> services = device.GattServices();
+
+	for (int i = 0; i < services.Size(); i++) {
+
+		IVectorView<GattCharacteristic> car = services.GetAt(i).GetAllCharacteristics();
+		for (int j = 0; j < car.Size(); j++) {
+
+			GattCharacteristicProperties p = car.GetAt(j).CharacteristicProperties();
+			if ((p & GattCharacteristicProperties::Read) == GattCharacteristicProperties::Read) {
+				readableChar.Append(car.GetAt(j));
+				read(car.GetAt(j));
+			}
+
+			if ((p & GattCharacteristicProperties::Write) == GattCharacteristicProperties::Write) {
+				writableChar.Append(car.GetAt(j));
+			}
+
+			if ((p & GattCharacteristicProperties::Notify) == GattCharacteristicProperties::Notify) {
+				notifiableChar.Append(car.GetAt(j));
+			}
+
+			if ((p & GattCharacteristicProperties::Indicate) == GattCharacteristicProperties::Indicate) {
+				cout << "The characteristic is indicatable." << endl;
+			}
+		}
+	}
+}
+
+void Device::read(GattCharacteristic charac) {
+	IAsyncOperation<GattReadResult> op = charac.ReadValueAsync();
+	op.Completed({ this, &Device::OnCompletedRead });
+	std::cout << "Reading..." << std::endl;
+
+	while (op.Status() != AsyncStatus::Completed);
+	Sleep(100);
+}
+
+void Device::write(GattCharacteristic charac) { return; }
+
+void Device::OnCompletedRead(IAsyncOperation<GattReadResult> const &op, AsyncStatus const &state) {
+	GattReadResult msg = op.GetResults();
+	IBuffer data = msg.Value();
+
+	if (msg.Status() == GattCommunicationStatus::Success) {
+		#ifdef BLE_DEBUG
+			std::stringstream mss;
+			mss << "[RECV][" << setw(3) << data.Length() << "B] ";
+			for (size_t idx = 0; idx < data.Length(); ++idx) {
+				mss << uppercase << setw(2) << setfill('0') << hex << static_cast<int>(data.data[idx]) << " ";
+			}
+			std::cout << mss.str() << std::endl;
+		#endif
+	} else {
+		switch (msg.Status()) {
+			case GattCommunicationStatus::Unreachable: cerr << "No communication can be performed with the device, at this time." << endl; break;
+			case GattCommunicationStatus::ProtocolError: cerr << "There was a GATT communication protocol error." << endl; break;
+			case GattCommunicationStatus::AccessDenied: cerr << "Access is denied." << endl; break;
+			default: break;
+		}
+	}
+}
+
+void Device::OnCompletedWrite(IAsyncOperation<GattReadResult> const &op, AsyncStatus const &state) {
+	GattReadResult msg = op.GetResults();
+
+	/*#ifdef BLE_DEBUG
+		std::stringstream mss;
+		mss << "[SEND][" << setw(3) << commandData.size() << "B] ";
+		for (size_t idx = 0; idx < commandData.size(); ++idx) {
+			mss << std::uppercase << setw(2) << setfill('0') << hex << static_cast<int>(commandData[idx]) << " ";
+		}
+		std::cout << mss.str() << std::endl;
+	#endif*/
 }
 
 string Device::getName() {
@@ -68,7 +148,7 @@ string Device::getDeviceInformation() {
 }
 
 string Device::getAll() {
-	Collections::IVectorView<GattDeviceService> services = device.GattServices();
+	IVectorView<GattDeviceService> services = device.GattServices();
 	
 	stringstream res;
 	for (int i = 0; i < services.Size(); i++) {
@@ -79,7 +159,7 @@ string Device::getAll() {
 			res << static_cast<int>(uuid.Data4[3]) << static_cast<int>(uuid.Data4[4]) << static_cast<int>(uuid.Data4[5]);
 			res << static_cast<int>(uuid.Data4[6]) << static_cast<int>(uuid.Data4[7]) << endl;
 
-			Collections::IVectorView<GattCharacteristic> car = services.GetAt(i).GetAllCharacteristics();
+			IVectorView<GattCharacteristic> car = services.GetAt(i).GetAllCharacteristics();
 			for (int j = 0; j < car.Size(); j++) {
 				if (car.GetAt(j) != NULL) {
 					uuid = car.GetAt(j).Uuid();
@@ -94,7 +174,7 @@ string Device::getAll() {
 					//res << "\t\tPresentation Format: " << endl;
 					//res << getGattPresentationFormat(car.GetAt(j).PresentationFormats());
 
-					Collections::IVectorView<GattDescriptor> des = car.GetAt(j).GetAllDescriptors();
+					IVectorView<GattDescriptor> des = car.GetAt(j).GetAllDescriptors();
 					for (int k = 0; k < des.Size(); k++) {
 						if (des.GetAt(k) != NULL) {
 							uuid = des.GetAt(k).Uuid();
@@ -153,7 +233,7 @@ string Device::getCharacteristicProperties(GattCharacteristicProperties p) {
 	return res.str();
 }
 
-string Device::getGattPresentationFormat(Collections::IVectorView<GattPresentationFormat> f) {
+string Device::getGattPresentationFormat(IVectorView<GattPresentationFormat> f) {
 
 	stringstream res;
 	for (int i = 0; i < f.Size(); i++) {

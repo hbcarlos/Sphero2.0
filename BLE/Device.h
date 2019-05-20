@@ -4,6 +4,15 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <iomanip>
+
+/*#include <vector>
+#include <map>
+#include <algorithm>
+#include <numeric>*/
+
+
+
 
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.Foundation.h>
@@ -26,6 +35,7 @@ namespace utils {
 	using namespace winrt::Windows::Foundation;
 	using namespace winrt::Windows::Storage::Streams;
 	using namespace winrt::Windows::Devices::Enumeration;
+	using namespace winrt::Windows::Foundation::Collections;
 	using namespace winrt::Windows::Globalization::DateTimeFormatting;
 }
 
@@ -34,15 +44,26 @@ using namespace std;
 using namespace bth;
 using namespace utils;
 
+#define BLE_DEBUG
+
 class Device {
 	private:
 		winrt::hstring name;
 		uint64_t address;
 		BluetoothLEDevice device = BluetoothLEDevice(NULL);
+		IVector<GattCharacteristic> readableChar;
+		IVector<GattCharacteristic> writableChar;
+		IVector<GattCharacteristic> notifiableChar;
 
 	public:
 		Device(string n, uint64_t a);
 		void search();
+		void searchChar();
+		void read(GattCharacteristic charac);
+		void write(GattCharacteristic charac);
+		void OnCompletedRead(IAsyncOperation<GattReadResult> const &op, AsyncStatus const &state);
+		void OnCompletedWrite(IAsyncOperation<GattReadResult> const &op, AsyncStatus const &state);
+
 		string getName();
 		string getDeviceId();
 		string getBluetoothDeviceId();
@@ -53,5 +74,5 @@ class Device {
 		string getDeviceInformation();
 		string getAll();
 		string getCharacteristicProperties(GattCharacteristicProperties car);
-		string getGattPresentationFormat(Collections::IVectorView<GattPresentationFormat> f);
+		string getGattPresentationFormat(IVectorView<GattPresentationFormat> f);
 };
