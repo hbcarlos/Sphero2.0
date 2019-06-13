@@ -13,6 +13,32 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SpheroLib", "SpheroLib\Sphe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BLE", "BLE\BLE.vcxproj", "{8C10239D-954F-4E86-BE75-FC5354EE0911}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "app", "app", "{F54E9794-C9CD-43F0-BF39-CCC32C751B20}"
+	ProjectSection(SolutionItems) = preProject
+		app\app-bundle.css = app\app-bundle.css
+		app\app-bundle.js = app\app-bundle.js
+		app\app.html = app\app.html
+		app\background.html = app\background.html
+		app\background.js = app\background.js
+		app\google-analytics.js = app\google-analytics.js
+		app\index.js = app\index.js
+		app\menu-manager.js = app\menu-manager.js
+		app\package-lock.json = app\package-lock.json
+		app\package.json = app\package.json
+		app\site-webview-preload.js = app\site-webview-preload.js
+		app\vendors-app-bundle.css = app\vendors-app-bundle.css
+		app\vendors-app-bundle.js = app\vendors-app-bundle.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{936AB3E1-B20E-4B50-A187-111B61EC6907}"
+	ProjectSection(SolutionItems) = preProject
+		app\libs\ElectronCoreBridge.node = app\libs\ElectronCoreBridge.node
+		app\libs\messagingclient-bundle.js = app\libs\messagingclient-bundle.js
+		app\libs\messagingservice-bundle.js = app\libs\messagingservice-bundle.js
+		app\libs\robotservice-bundle.js = app\libs\robotservice-bundle.js
+		app\libs\utils-bundle.js = app\libs\utils-bundle.js
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -88,6 +114,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{936AB3E1-B20E-4B50-A187-111B61EC6907} = {F54E9794-C9CD-43F0-BF39-CCC32C751B20}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {25CC039F-AD5D-4463-95D5-AF3FA4CB88C5}

@@ -1,0 +1,295 @@
+
+
+MINI: {
+    type: "MINI",
+    name: "miniName",
+    prefix: "SM-",
+    displayName: "Sphero Mini",
+    id: 7
+};
+
+
+function(e, t, n) {
+        n(7), n(5);
+        const r = n(1),
+            i = n(16),
+            a = n(45),
+            o = n(44),
+            s = n(43),
+            u = n(42),
+            c = {
+                "0x10": n(36),
+                "0x11": n(35),
+                "0x12": n(155),
+                "0x13": n(34),
+                "0x16": n(33),
+                "0x18": n(32),
+                "0x19": n(31),
+                "0x1A": n(38),
+                "0x1D": n(37),
+                "0x1F": n(76)
+            };
+        e.exports = class extends i {
+            constructor(e) {
+                super(e), new r({
+                    "Class Name": "TOY SM"
+                }), this.driveControl = new o({
+                    this: this
+                }), this.ledControl = new s({
+                    this: this
+                }), this.activationsStatsControl = new u({
+                    this: this,
+                    statsManager: e.statsManager
+                }), this.sensorControl = new a({
+                    this: this,
+                    supportedSensors: {
+                        Quaternion: {
+                            key: "quaternion",
+                            sensors: {
+                                X: {
+                                    key: "x",
+                                    value: 33554432,
+                                    mask: 1,
+                                    modifier: null
+                                },
+                                Y: {
+                                    key: "y",
+                                    value: 16777216,
+                                    mask: 1,
+                                    modifier: null
+                                },
+                                Z: {
+                                    key: "z",
+                                    value: 8388608,
+                                    mask: 1,
+                                    modifier: null
+                                },
+                                W: {
+                                    key: "w",
+                                    value: 4194304,
+                                    mask: 1,
+                                    modifier: null
+                                }
+                            }
+                        },
+                        Attitude: {
+                            key: "attitude",
+                            sensors: {
+                                Pitch: {
+                                    key: "pitch",
+                                    value: 262144,
+                                    mask: 1,
+                                    modifier: null
+                                },
+                                Roll: {
+                                    key: "roll",
+                                    value: 131072,
+                                    mask: 1,
+                                    modifier: null
+                                },
+                                Yaw: {
+                                    key: "yaw",
+                                    value: 65536,
+                                    mask: 1,
+                                    modifier: null
+                                }
+                            }
+                        },
+                        Accelerometer: {
+                            key: "accelerometer",
+                            sensors: {
+                                X: {
+                                    key: "x",
+                                    value: 32768,
+                                    mask: 1,
+                                    modifier: null
+                                },
+                                Y: {
+                                    key: "y",
+                                    value: 16384,
+                                    mask: 1,
+                                    modifier: null
+                                },
+                                Z: {
+                                    key: "z",
+                                    value: 8192,
+                                    mask: 1,
+                                    modifier: null
+                                }
+                            }
+                        },
+                        AccelOne: {
+                            key: "accelOne",
+                            sensors: {
+                                AccelOne: {
+                                    key: "accelOne",
+                                    value: 512,
+                                    mask: 1,
+                                    modifier: null
+                                }
+                            }
+                        },
+                        Locator: {
+                            key: "locator",
+                            sensors: {
+                                X: {
+                                    key: "x",
+                                    value: 64,
+                                    mask: 1,
+                                    modifier: function(e) {
+                                        return 100 * e
+                                    }
+                                },
+                                Y: {
+                                    key: "y",
+                                    value: 32,
+                                    mask: 1,
+                                    modifier: function(e) {
+                                        return 100 * e
+                                    }
+                                }
+                            }
+                        },
+                        Velocity: {
+                            key: "velocity",
+                            sensors: {
+                                X: {
+                                    key: "x",
+                                    value: 16,
+                                    mask: 1,
+                                    modifier: function(e) {
+                                        return 100 * e
+                                    }
+                                },
+                                Y: {
+                                    key: "y",
+                                    value: 8,
+                                    mask: 1,
+                                    modifier: function(e) {
+                                        return 100 * e
+                                    }
+                                }
+                            }
+                        },
+                        Speed: {
+                            key: "speed",
+                            sensors: {
+                                Speed: {
+                                    key: "speed",
+                                    value: 4,
+                                    mask: 1,
+                                    modifier: null
+                                }
+                            }
+                        },
+                        CoreTime: {
+                            key: "coreTime",
+                            sensors: {
+                                CoreTime: {
+                                    key: "coreTime",
+                                    value: 2,
+                                    mask: 1,
+                                    modifier: null
+                                }
+                            }
+                        },
+                        Gyroscope: {
+                            key: "gyroscope",
+                            sensors: {
+                                X: {
+                                    key: "x",
+                                    value: 33554432,
+                                    mask: 2,
+                                    modifier: null
+                                },
+                                Y: {
+                                    key: "y",
+                                    value: 16777216,
+                                    mask: 2,
+                                    modifier: null
+                                },
+                                Z: {
+                                    key: "z",
+                                    value: 8388608,
+                                    mask: 2,
+                                    modifier: null
+                                }
+                            }
+                        }
+                    }
+                }), this.getSupportedFirmwareVersion = function() {return "2.0"},
+				
+				this.addCommand("0x10", "Ping", "0x10", "0x00"),
+				
+				this.addCommand("0x11", "Get Main App Version", "0x11", "0x00"),
+				this.addCommand("0x11", "Get Bootloader Version", "0x11", "0x01")
+				this.addCommand("0x11", "Get Board Revision", "0x11", "0x03")
+				this.addCommand("0x11", "Config Block Write", "0x11", "0x04")
+				this.addCommand("0x11", "Get Mac Address", "0x11", "0x06")
+				this.addCommand("0x11", "Get Nordic Temperature", "0x11", "0x0E")
+				this.addCommand("0x11", "Get Model Number", "0x11", "0x12")
+				this.addCommand("0x11", "Get Stats Id", "0x11", "0x13")
+				this.addCommand("0x11", "Get Three Character Sku", "0x11", "0x28"),
+				
+				this.addCommand("0x12", "Enable Desktoy Mode", "0x12", "0x29")
+				this.addCommand("0x12", "Get Desktoy Mode", "0x12", "0x2A"), 
+				
+				this.addCommand("0x13", "Enter Deep Sleep", "0x13", "0x00")
+				this.addCommand("0x13", "Sleep", "0x13", "0x01")
+				this.addCommand("0x13", "Get Battery Voltage", "0x13", "0x03")
+				this.addCommand("0x13", "Get Battery State", "0x13", "0x04")
+				this.addCommand("0x13", "Enable Battery State Changed Notify", "0x13", "0x05")
+				this.addCommand("0x13", "Wake", "0x13", "0x0D")
+				this.addCommand("0x13", "Silent Wake", "0x13", "0x0E")
+				this.addCommand("0x13", "Get Battery Percentage", "0x13", "0x10")
+				this.addCommand("0x13", "Set Battery Calibration", "0x13", "0x14")
+				this.addCommand("0x13", "Get Battery Voltage State", "0x13", "0x17")
+				this.addCommand("0x13", "Enable Double Tap Wake", "0x13", "0x1D")
+				this.addCommand("0x13", "Get Double Tap Wake Enabled", "0x13", "0x1E"), 
+				
+				this.addCommand("0x16", "Set Raw Motors", "0x16", "0x01")
+				this.addCommand("0x16", "Reset Yaw", "0x16", "0x06")
+				this.addCommand("0x16", "Drive With Heading", "0x16", "0x07")
+				this.addCommand("0x16", "Set Stabilization", "0x16", "0x0C"), 
+				
+				this.addCommand("0x18", "Set Sensor Streaming Mask", "0x18", "0x00")
+				this.addCommand("0x18", "Get Sensor Streaming Mask", "0x18", "0x01")
+				this.addCommand("0x18", "Set Extended Sensor Streaming Mask", "0x18", "0x0C")
+				this.addCommand("0x18", "Get Extended Sensor Streaming Mask", "0x18", "0x0D")
+				this.addCommand("0x18", "Enable Gyro Max Notify", "0x18", "0x0F")
+				this.addCommand("0x18", "Configure Collision Detection", "0x18", "0x11")
+				this.addCommand("0x18", "Reset Locator X And Y", "0x18", "0x13")
+				this.addCommand("0x18", "Enable Collision Detected Notify", "0x18", "0x14")
+				this.addCommand("0x18", "Set Locator Flags", "0x18", "0x17"),
+				
+				this.addCommand("0x19", "Set Bluetooth Name", "0x19", "0x03")
+				this.addCommand("0x19", "Get Bluetooth Name", "0x19", "0x04"),
+				
+				this.addCommand("0x1A", "Set All Leds", "0x1A", "0x0E")
+				this.addCommand("0x1A", "Start Idle Led Animation", "0x1A", "0x19"), 
+				
+				this.addCommand("0x1D", "Get Pending Update Flags", "0x1D", "0x0D"), 
+				
+				this.addCommand("0x1F", "Get Chassis Id", "0x1F", "0x27"), 
+				
+				
+				this.addNotification("0x13", "Battery State Changed Notify", "0x13", "0x06"), 
+				this.addNotification("0x13", "System Awake Notify", "0x13", "0x11"), 
+				this.addNotification("0x13", "Will Sleep Notify", "0x13", "0x19"), 
+				this.addNotification("0x13", "Did Sleep Notify", "0x13", "0x1A"), 
+				
+				this.addNotification("0x18", "Sensor Streaming Data Notify", "0x18", "0x02"),
+				this.addNotification("0x18", "Gyro Max Notify", "0x18", "0x10"), 
+				this.addNotification("0x18", "Collision Detected Notify", "0x18", "0x12"), 
+				this.LED = {
+                    aiming: 1,
+                    bodyRed: 2,
+                    bodyGreen: 4,
+                    bodyBlue: 8,
+                    userBodyRed: 16,
+                    userBodyGreen: 32,
+                    userBodyBlue: 64
+                }
+            }
+        }
+    },

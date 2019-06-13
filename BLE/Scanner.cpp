@@ -102,10 +102,11 @@ BluetoothLEDevice Scanner::getDevice() {
 	
 	IAsyncOperation<BluetoothLEDevice> op = BluetoothLEDevice::FromBluetoothAddressAsync(address);
 	op.Completed({ this, &Scanner::OnCompletedTask });
-	std::cout << "Searching device..." << std::endl;
+	//std::cout << "Searching device..." << std::endl;
 
 	while (op.Status() != AsyncStatus::Completed);
-	Sleep(100);
+	Sleep(1000);
+
 	return device;
 }
 
@@ -113,6 +114,8 @@ void Scanner::OnAdvertisementRecieved(BluetoothLEAdvertisementWatcher const& wat
 	BluetoothLEAdvertisement ad = args.Advertisement();
 	address = args.BluetoothAddress();
 	std::cout << "Device: " << args.BluetoothAddress() << std::endl;
+	std::cout << "LocalName: " << to_string(ad.LocalName()) << std::endl;
+	std::cout << std::endl;
 
 	/*std::cout << "Address: " << args.BluetoothAddress() << std::endl;
 	std::cout << "Data Type: ";
@@ -140,4 +143,5 @@ void Scanner::OnAdvertisementStopped(BluetoothLEAdvertisementWatcher const & wat
 
 void Scanner::OnCompletedTask(IAsyncOperation<BluetoothLEDevice> const &op, AsyncStatus const &state) {
 	device = op.GetResults();
+	std::cout << "Device connected" << std::endl;
 }

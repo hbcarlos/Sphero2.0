@@ -33,4 +33,10 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Mini.txt" />
+    <Text Include="SPRK+.txt" />
+    <Text Include="Servicios.txt" />
+    <Text Include="Comandos.txt" />
+  </ItemGroup>
 </Project>

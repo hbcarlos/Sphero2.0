@@ -1,0 +1,250 @@
+
+
+Class Name: "TOY - STATS CONTROL (v1)"
+		ID: "id",
+		TIME: "time",
+		NAME: "name",
+		SERIAL_NO: "serial_number",
+		MODEL: "model",
+		MAIN_APP: "main_app",
+		BOOTLOADER: "bootloader",
+		RAIDIO_FW: "radio_fw",
+		SKU: "sku",
+		MAC_ADDRESS: "macAddress",
+		FCB_CRC: "fcb_crc",
+		CHASSIS_ID: "chassis_id"
+
+Class Name: "TOY - LED CONTROL (v1)"
+Class Name: "TOY - DRIVE CONTROL (v1)"
+Class Name: "TOY - SENSOR CONTROL (v1)"
+
+did: 0x00: "DID CORE COMMANDS"
+		0x01: Ping
+		0x02: "Get Versions"
+		0x10: "Set Bluetooth Name"
+		0x11: "Get Bluetooth Info"
+		0x20: "Get Power State"
+		0x21: "Enable Battery State Changed Notify"
+		0x22: Sleep
+		0x25: "Set Inactivity Timeout"
+		0x26: "Get Charger State"
+		0x27: "Get Factory Config Block Crc"
+		0x30: "Jump To Bootloader"
+
+did 0x01: "DID BOOTLOADER COMMANDS"
+		0x02: "Begin Reflash"
+		0x03: "Here Is Page"
+		0x04: "Jump To Main"
+
+did 0x02: "DID SPHERO COMMANDS"
+		0x01: "Set Heading"
+		0x02: "Set Stabilization"
+		0x03: "Set Rotation Rate"
+		0x07: "Get Chassis Id"
+		0x09: "Self Level"
+		0x11: "Set Data Streaming"
+		0x12: "Configure Collision Detection"
+		0x13: "Configure Locator"
+		0x16: "Get Temperature"
+		0x20: "Set Main Led"
+		0x21: "Set Back Led Brightness"
+		0x30: Roll
+		0x31: Boost
+		0x33: "Set Raw Motors"
+		0x34: "Set Motion Timeout"
+		0x35: "Set Persistent Options"
+		0x36: "Get Persistent Options"
+		0x37: "Set Temporary Options"
+		0x38: "Get Temporary Options"
+		0x3A: "Get Sku"
+
+did: 0xFF: "DID ASYNC COMMANDS
+		0x01: "Battery State Changed Notify"
+				async: "BATTERY_STATE_CHANGED_NOTIFY"
+		0x03: "Sensor Streaming Data Notify"
+				async: "SENSOR_STREAMING_DATA_NOTIFY"
+		0x04: "Config Block Contents Notify"
+				async: "CONFIG_BLOCK_CONTENTS_NOTIFY"
+		0x05: "Will Sleep Notify"
+				async: "WILL_SLEEP_NOTIFY"
+		0x07: "Collision Detected Notify"
+				async: "COLLISION_DETECTED_NOTIFY"
+		0x0C: "Gyro Max Notify"
+				async: "GYRO_MAX_NOTIFY"
+		0x14: "Did Sleep Notify"
+				async: "DID_SLEEP_NOTIFY"
+
+
+
+
+
+Class Name: "TOY - STATS CONTROL (v2)"
+		ID: "ID",
+		TIME: "Timestamp",
+		SERIAL_NO: "SerialNumber",
+		SESSION: "Session",
+		BOT_ID: "BotID",
+		SKU: "SKU",
+		MAC_ADDRESS: "MACAddress",
+		FCB_CRC: "FcbCrc",
+		MODE: "Mode",
+		CHASSIS_ID: "Chassis",
+		MODEL: "Model"
+
+Class Name: "TOY - LED CONTROL (v2)"
+Class Name: "TOY - DRIVE CONTROL (v2)"
+Class Name: "TOY - SENSOR CONTROL (v2)"
+
+did 0x10: "DID API_AND_SHELL COMMANDS"
+		0x00: Ping
+
+did 0x11: "DID SYSTEM_INFO COMMANDS"
+		0x00: "Get Main App Version"
+		0x01: "Get Bootloader Version"
+		0x03: "Get Board Revision"
+		0x04: "Config Block Write"
+		0x06: "Get Mac Address"
+		0x0E: "Get Nordic Temperature"
+		0x11: "Get Version"
+		0x12: "Get Model Number"
+		0x13: "Get Stats Id"
+		0x17: "Get Secondary Main App Version"
+		0x18: "Get Secondary Main App Version Notify"
+				async: "GET_SECONDARY_MAIN_APP_VERSION_NOTIFY"
+		0x24: "Get Secondary Mcu Bootloader Version"
+		0x25: "Get Secondary Mcu Bootloader Version Notify"
+				async: "GET_SECONDARY_MCU_BOOTLOADER_VERSION_NOTIFY"
+		0x28: "Get Three Character Sku"
+		0x38: "Get Sku"
+
+did 0x13: "DID POWER COMMANDS"
+		0x00: "Enter Deep Sleep"
+		0x01: Sleep
+		0x03: "Get Battery Voltage"
+		0x04: "Get Battery State"
+		0x05: "Enable Battery State Changed Notify"
+		0x06: "Battery State Changed Notify"
+				async: "BATTERY_STATE_CHANGED_NOTIFY"
+		0x0D: Wake
+		0x0E: "Silent Wake"
+		0x10: "Get Battery Percentage"
+		0x11: "System Awake Notify"
+				async: "SYSTEM_AWAKE_NOTIFY"
+		0x14: "Set Battery Calibration"
+		0x17: "Get Battery Voltage State"
+		0x19: "Will Sleep Notify"
+				async: "WILL_SLEEP_NOTIFY"
+		0x1A: "Did Sleep Notify"
+				async: "DID_SLEEP_NOTIFY"
+		0x1B: "Enable Battery Voltage State Change Notify"
+		0x1C: "Battery Voltage State Change Notify"
+				async: "BATTERY_VOLTAGE_STATE_CHANGE_NOTIFY"
+		0x1D: "Enable Double Tap Wake"
+		0x1E: "Get Double Tap Wake Enabled"
+		0x1F: "Get Charger State"
+		0x20: "Enable Charger State Changed Notify"
+		0x21: "Charger State Changed Notify"
+				async: "CHARGER_STATE_CHANGED_NOTIFY"
+
+did 0x16: "DID DRIVE COMMANDS"
+		0x01: "Set Raw Motors"
+		0x07: "Drive With Heading"
+		0x0C: "Set Stabilization"
+
+did: 0x17: "DID ANIMATRONIC COMMANDS
+		0x05: "Play Animation"
+		0x0D: "Perform Leg Action"
+		0x0F: "Set Head Position"
+		0x11: "Play Animation Complete Notify"
+		0x14: "Get Head Position"
+		0x15: "Set Leg Position"
+		0x16: "Get Leg Position"
+		0x25: "Get Leg Action"
+		0x26: "Leg Action Complete Notify"
+				async: "LEG_ACTION_COMPLETE_NOTIFY"
+		0x2A: "Enable Leg Action Notify"
+		0x2B: "Stop Animation"
+		0x2C: "Enable Idle Animations"
+		0x2D: "Enable Trophy Mode"
+		0x2E: "Get Trophy Mode Enabled"
+		0x39: "Enable Head Reset To Zero Notify"
+		0x3A: "Head Reset To Zero Notify"
+				async: "HEAD_RESET_TO_ZERO_NOTIFY"
+
+did 0x18: "DID SENSOR COMMANDS"
+		0x00: "Set Sensor Streaming Mask"
+		0x01: "Get Sensor Streaming Mask"
+		0x02: "Sensor Streaming Data Notify"
+		0x06: "Run Accel Gyro Self Test"
+		0x0C: "Set Extended Sensor Streaming Mask"
+		0x0D: "Get Extended Sensor Streaming Mask"
+		0x0F: "Enable Gyro Max Notify"
+		0x10: "Gyro Max Notify"
+		0x11: "Configure Collision Detection"
+		0x12: "Collision Detected Notify"
+		0x13: "Reset Locator X And Y"
+		0x14: "Enable Collision Detected Notify"
+		0x17: "Set Locator Flags"
+		0x18: "Set Accelerometer Activity Threshold"
+		0x19: "Enable Accelerometer Activity Notify"
+		0x1A: "Accelerometer Activity Notify"
+		0x1B: "Set Gyro Activity Threshold"
+		0x1C: "Enable Gyro Activity Notify"
+		0x1D: "Gyro Activity Notify"
+		0x22: "Get Bot To Bot Infrared Readings"
+		0x25: "Magnetometer Calibrate To North"
+		0x26: "Magnetometer North Yaw Notify"
+		0x27: "Start Robot To Robot Infrared Broadcasting"
+		0x28: "Start Robot To Robot Infrared Following"
+		0x29: "Stop Robot To Robot Infrared Broadcasting"
+		0x2A: "Send Robot To Robot Infrared Message"
+		0x2B: "Listen For Robot To Robot Infrared Message"
+		0x2C: "Robot To Robot Infrared Message Received Notify"
+		0x30: "Get Ambient Light Sensor Value"
+		0x32: "Stop Robot To Robot Infrared Following"
+		0x33: "Start Robot To Robot Infrared Evading"
+		0x34: "Stop Robot To Robot Infrared Evading"
+
+did 0x19: "DID CONNECTION COMMANDS"
+		0x03: "Set Bluetooth Name"
+		0x04: "Get Bluetooth Name"
+
+did: 0x1D: "DID FIRMWARE COMMANDS"
+		0x0D: "Get Pending Update Flags"
+
+did 0x1A: "DID IO COMMANDS"
+		0x04: "Set Led"
+		0x07: "Play Audio File"
+				async: "PLAY_AUDIO_FILE"
+		0x08: "Set Audio Volume"
+		0x09: "Get Audio Volume"
+		0x0A: "Stop All Audio"
+		0x0E: "Set All Leds"
+		0x18: "Play Test Tone"
+		0x19: "Start Idle Led Animation"
+		0x1C: "Set All Leds With 8 Bit Mask"
+		0x2D: "Set Led Matrix Pixel"
+		0x2E: "Set Led Matrix"
+		0x2F: "Set Led Matrix One Color"
+		0x30: "Save Led Matrix Animation Frame"
+		0x31: "Save Led Matrix Animation"
+		0x32: "Play Led Matrix Animation"
+		0x33: "Play Led Matrix Animation Frame"
+		0x34: "Get Led Matrix Animation Frames"
+		0x35: "Delete Led Matrix Animations And Frames"
+		0x36: "Pause Led Matrix"
+		0x37: "Resume Led Matrix"
+		0x38: "Reset Led Matrix"
+		0x39: "Override Matrix Animation Global Settings"
+		0x3A: "Set Led Matrix Frame Rotation"
+		0x3B: "Set Led Matrix Text Scrolling"
+		0x3C: "Set Led Matrix Text Scrolling Notify"
+				async: "SET_LED_MATRIX_TEXT_SCROLLING_NOTIFY"
+		0x3D: "Draw Led Matrix Line"
+		0x3E: "Draw Led Matrix Fill"
+		0x3F: "Led Matrix Animation Complete Notify"
+				async: "LED_MATRIX_ANIMATION_COMPLETE_NOTIFY"
+		0x40: "Assign Frames To Animation"
+		0x41: "Save Led Matrix Animation Without Frames"
+		0x42: "Set Led Matrix Single Character"
+		0x43: "Play Led Matrix Animation With Loop Option"

@@ -124,6 +124,12 @@
     <ClInclude Include="Device.h" />
     <ClInclude Include="Scanner.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Comandos.txt" />
+    <Text Include="Mini.txt" />
+    <Text Include="Servicios.txt" />
+    <Text Include="SPRK+.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

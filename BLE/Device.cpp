@@ -9,13 +9,19 @@ Device::Device(string n, uint64_t a) {
 	notifiableChar = vector<GattCharacteristic>();
 	indicatableChar = vector<GattCharacteristic>();
 
-	Scanner scaner = Scanner(name, 0);
-	device = scaner.getDevice();
+	Scanner scanner = Scanner(name, 0);
+	device = scanner.getDevice();
+
+	std::cout << to_string(device.Name()) << std::endl;
+
+
+	IVectorView<GattDeviceService> services = device.GattServices();
+	std::cout << services.Size() << std::endl;
 }
 
 void Device::search() {
-	Scanner scaner = Scanner(name, address);
-	device = scaner.getDevice();
+	Scanner scanner = Scanner(name, address);
+	device = scanner.getDevice();
 }
 
 void Device::searchChar() {
@@ -258,6 +264,8 @@ string Device::getDeviceInformation() {
 string Device::getAll() {
 	IVectorView<GattDeviceService> services = device.GattServices();
 	
+	std::cout << services.Size() << std::endl;
+
 	stringstream res;
 	for (int i = 0; i < services.Size(); i++) {
 		if (services.GetAt(i) != NULL) {
