@@ -3,129 +3,358 @@
 Device::Device(string n, uint64_t a) {
 	name = winrt::to_hstring(n);
 	address = a;
+	device = NULL;
 
-	readableChar = vector<GattCharacteristic>();
-	writableChar = vector<GattCharacteristic>();
-	notifiableChar = vector<GattCharacteristic>();
-	indicatableChar = vector<GattCharacteristic>();
-
-	Scanner scanner = Scanner(name, 0);
-	device = scanner.getDevice();
-
-	std::cout << to_string(device.Name()) << std::endl;
-
-
-	IVectorView<GattDeviceService> services = device.GattServices();
-	std::cout << services.Size() << std::endl;
+	controlService = GattDeviceService(NULL);
+	commandsChar = GattCharacteristic(NULL);
+	responseChar = GattCharacteristic(NULL);
+	responseDesc = GattDescriptor(NULL);
 }
 
-void Device::search() {
+void Device::connect() {
 	Scanner scanner = Scanner(name, address);
+	scanner.start();
 	device = scanner.getDevice();
+	
+	IAsyncOperation<DeviceAccessStatus> opAcc = device.RequestAccessAsync();
+	std::cout << "Getting Access to device..." << std::endl;
+	opAcc.Completed({ this, &Device::OnAccessResponse });
+	while (opAcc.Status() != AsyncStatus::Completed);
+	Sleep(1000);
+	std::cout << std::endl;
+
+	devModeOn();
+	
+	IAsyncOperation<GattDeviceServicesResult> opService = device.GetGattServicesForUuidAsync(RobotControlService, BluetoothCacheMode::Uncached);
+	opService.Completed({ this, &Device::OnServicesRecived });
+	std::cout << "Getting services..." << std::endl;
+	while (opService.Status() != AsyncStatus::Completed);
+	Sleep(1000);
+	std::cout << std::endl;
+
+	/*controlService.Session().MaintainConnection(true);
+
+	IAsyncOperation<GattOpenStatus> opOpen = controlService.OpenAsync(GattSharingMode::SharedReadAndWrite); //Exclusive SharedReadAndWrite
+	opOpen.Completed({ this, &Device::OnOpenResponse });
+	std::cout << "Opening services..." << std::endl;
+	while (opOpen.Status() != AsyncStatus::Completed);
+	Sleep(1000);
+	std::cout << std::endl;
+
+	#ifdef BLE_DEBUG
+		std::cout << "Service Configuration:" << std::endl;
+		GattSession session = controlService.Session();
+		std::cout << "	CanMaintainConnection: " << session.CanMaintainConnection() << std::endl;
+		std::cout << "	SessionStatus: ";
+		switch (session.SessionStatus()) {
+			case GattSessionStatus::Closed: std::cout << "The GATT session is closed." << std::endl; break;
+			case GattSessionStatus::Active: std::cout << "The GATT session is active." << std::endl; break;
+			default: break;
+		}
+		std::cout << "	SharingMode: ";
+		switch (controlService.SharingMode()) {
+			case GattSharingMode::Unspecified: std::cout << "The sharing mode is unspecified." << std::endl; break;
+			case GattSharingMode::Exclusive: std::cout << "The sharing mode is exclusive." << std::endl; break;
+			case GattSharingMode::SharedReadOnly: std::cout << "The sharing mode is read only." << std::endl; break;
+			case GattSharingMode::SharedReadAndWrite: std::cout << "The sharing mode is read and write." << std::endl; break;
+			default: break;
+		}
+		std::cout << std::endl;
+	#endif*/
+
+	IAsyncOperation<GattCharacteristicsResult> opChar = controlService.GetCharacteristicsAsync(BluetoothCacheMode::Uncached);
+	opChar.Completed({ this, &Device::OnCharacteristicsRecived });
+	std::cout << "Getting characteristics..." << std::endl;
+	while (opChar.Status() != AsyncStatus::Completed);
+	Sleep(1000);
+	std::cout << std::endl;
+
+	/*IAsyncOperation<GattWriteResult> opDesWrite = commandsChar.WriteClientCharacteristicConfigurationDescriptorWithResultAsync(GattClientCharacteristicConfigurationDescriptorValue::Notify);
+	opDesWrite.Completed({ this, &Device::OnDescriptorWrite });
+	std::cout << "Writing descriptor..." << std::endl;
+	while (opDesWrite.Status() != AsyncStatus::Completed);
+	Sleep(1000);
+	std::cout << std::endl;*/
+
+	//IAsyncOperation<GattReadClientCharacteristicConfigurationDescriptorResult> opDesRead = responseChar.ReadClientCharacteristicConfigurationDescriptorAsync();
+	//IAsyncOperation<GattCommunicationStatus> opDesRead = responseChar.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue::Notify);
+	IAsyncOperation<GattWriteResult> opDesRead = responseChar.WriteClientCharacteristicConfigurationDescriptorWithResultAsync(GattClientCharacteristicConfigurationDescriptorValue::Notify);
+	opDesRead.Completed({ this, &Device::OnDescriptorWriteWithResult });
+	std::cout << "Reading descriptor..." << std::endl;
+	while (opDesRead.Status() != AsyncStatus::Completed);
+	Sleep(1000);
+	std::cout << std::endl;
+
+	//commandsHandle = commandsChar.AttributeHandle();
+	responseChar.ValueChanged({ this, &Device::OnNotify });
+	std::cout << "Conected" << std::endl;
+
+	///write(WakeCharacteristic, { 0x13 });
+}
+void Device::disconnect() {
+	device.Close();
+	device = BluetoothLEDevice(NULL);
+
+	controlService = GattDeviceService(NULL);
+	commandsChar = GattCharacteristic(NULL);
+	responseChar = GattCharacteristic(NULL);
+	responseDesc = GattDescriptor(NULL);
+
+	std::cout << "Disconected" << std::endl;
+}
+void Device::devModeOn() {
+	IAsyncOperation<GattDeviceServicesResult> opService = device.GetGattServicesForUuidAsync(BLEService, BluetoothCacheMode::Uncached);
+	opService.Completed({ this, &Device::OnServicesRecived });
+	std::cout << "Getting services..." << std::endl;
+	while (opService.Status() != AsyncStatus::Completed);
+	Sleep(1000);
+	std::cout << std::endl;
+
+	/*serviceBLE.Session().MaintainConnection(true);
+
+	IAsyncOperation<GattOpenStatus> opOpen = serviceBLE.OpenAsync(GattSharingMode::SharedReadAndWrite); //Exclusive SharedReadAndWrite
+	opOpen.Completed({ this, &Device::OnOpenResponse });
+	std::cout << "Opening services..." << std::endl;
+	while (opOpen.Status() != AsyncStatus::Completed);
+	Sleep(1000);
+	std::cout << std::endl;
+
+#ifdef BLE_DEBUG
+	std::cout << "Service Configuration:" << std::endl;
+	GattSession session = serviceBLE.Session();
+	std::cout << "	CanMaintainConnection: " << session.CanMaintainConnection() << std::endl;
+	std::cout << "	SessionStatus: ";
+	switch (session.SessionStatus()) {
+	case GattSessionStatus::Closed: std::cout << "The GATT session is closed." << std::endl; break;
+	case GattSessionStatus::Active: std::cout << "The GATT session is active." << std::endl; break;
+	default: break;
+	}
+	std::cout << "	SharingMode: ";
+	switch (serviceBLE.SharingMode()) {
+	case GattSharingMode::Unspecified: std::cout << "The sharing mode is unspecified." << std::endl; break;
+	case GattSharingMode::Exclusive: std::cout << "The sharing mode is exclusive." << std::endl; break;
+	case GattSharingMode::SharedReadOnly: std::cout << "The sharing mode is read only." << std::endl; break;
+	case GattSharingMode::SharedReadAndWrite: std::cout << "The sharing mode is read and write." << std::endl; break;
+	default: break;
+	}
+	std::cout << std::endl;
+#endif*/
+
+	IAsyncOperation<GattCharacteristicsResult> opChar = serviceBLE.GetCharacteristicsAsync(BluetoothCacheMode::Uncached);
+	opChar.Completed({ this, &Device::OnCharacteristicsRecived });
+	std::cout << "Getting characteristics..." << std::endl;
+	while (opChar.Status() != AsyncStatus::Completed);
+	Sleep(1000);
+	std::cout << std::endl;
+
+	//std::wstring msg(L"011ie");
+	//write(AntiDosCharacteristic, { static_cast<unsigned char>(std::stol(msg)) });
+	//write(TXPowerCharacteristic, { 7 });
+	//write(WakeCharacteristic, { 1 });// generateCommand(0x00, 0x01, 0x01, {}));
+
+	std::cout << "Conected devModeOn" << std::endl;
 }
 
-void Device::searchChar() {
-	IVectorView<GattDeviceService> services = device.GattServices();
+int Device::sentCommand(vector<uint8_t> data) {
+	write(commandsChar, data);
+	return 0;
+}
+std::vector<uint8_t> Device::generateCommand(uint8_t device, uint8_t command, uint8_t sequence, std::vector<uint8_t> data) {
 
-	for (int i = 0; i < services.Size(); i++) {
-		cout << "servicio " << i << endl;
-		IVectorView<GattCharacteristic> car = services.GetAt(i).GetAllCharacteristics();
-		
+	std::vector<uint8_t> returnData;
+
+	returnData.push_back(0xFF);
+	returnData.push_back(0xFE);
+	returnData.push_back(device);
+	returnData.push_back(command);
+	returnData.push_back(sequence);
+	returnData.push_back(data.size() + 1);
+
+	returnData.insert(returnData.end(), data.begin(), data.end());
+
+	unsigned long byteSum = std::accumulate(returnData.begin() + 2, returnData.end(), 0);
+
+	returnData.push_back(static_cast<uint8_t>(~(byteSum % 256)));
+
+	return returnData;
+}
+
+void Device::read(GattCharacteristic charac) {
+	IAsyncOperation<GattReadResult> op = responseDesc.ReadValueAsync(BluetoothCacheMode::Uncached);
+	op.Completed({ this, &Device::OnCompletedRead });
+	std::cout << "Reading..." << std::endl;
+}
+void Device::write(GattCharacteristic charac, vector<uint8_t> data) {
+	DataWriter wr = DataWriter();
+
+	for (int idx = 0; idx < data.size(); idx++) {
+		wr.WriteByte(data[idx]);
+	}
+	wr.WriteByte(data.size() + 1);
+
+#ifdef BLE_DEBUG
+	std::stringstream mss;
+	mss << "[SEND][" << setw(3) << data.size() << "B] ";
+	for (size_t idx = 0; idx < data.size(); ++idx) {
+		mss << std::uppercase << setw(2) << setfill('0') << hex << static_cast<int>(data[idx]) << " ";
+	}
+	std::cout << mss.str() << std::endl;
+#endif
+
+	//GattWriteRequest req = GattWriteRequest(nullptr);
+
+	//GattReliableWriteTransaction writable = GattReliableWriteTransaction();
+	//writable.WriteValue(charac, wr.DetachBuffer());
+	//writable.CommitWithResultAsync();
+	//writable.CommitAsync();
+
+	IAsyncOperation<GattCommunicationStatus> op = charac.WriteValueAsync(wr.DetachBuffer(), GattWriteOption::WriteWithResponse);// WithResultAsync(wr.DetachBuffer(), GattWriteOption::WriteWithResponse);
+	op.Completed({ this, &Device::OnCompletedWrite });
+	std::cout << "Writing..." << std::endl;
+}
+
+void Device::OnAccessResponse(IAsyncOperation<DeviceAccessStatus> const &op, AsyncStatus const &state) {
+	if (asyncStatus(state)) {
+		std::cout << "	AccessResponse: ";
+		switch (op.GetResults()) {
+		case DeviceAccessStatus::Allowed: std::cout << "Access to the device is allowed." << std::endl; break;
+		case DeviceAccessStatus::DeniedBySystem: std::cout << "Access to the device has been disallowed by the system." << std::endl; break;
+		case DeviceAccessStatus::DeniedByUser: std::cout << "Access to the device has been disallowed by the user." << std::endl; break;
+		case DeviceAccessStatus::Unspecified: std::cout << "The device access is not specified." << std::endl; break;
+		default: break;
+		}
+	}
+}
+void Device::OnOpenResponse(IAsyncOperation<GattOpenStatus> const &op, AsyncStatus const &state) {
+	if (asyncStatus(state)) {
+		std::cout << "	OpenStatus: ";
+		switch (op.GetResults()) {
+			case GattOpenStatus::Unspecified: std::cout << "Unspecified error." << std::endl; break;
+			case GattOpenStatus::Success: std::cout << "The GATT device service was successfully opened." << std::endl; break;
+			case GattOpenStatus::AlreadyOpened: std::cout << "The GATT device service is already opened." << std::endl; break;
+			case GattOpenStatus::NotFound: std::cout << "The GATT device service was not found." << std::endl; break;
+			case GattOpenStatus::SharingViolation: std::cout << "There was a sharing violation." << std::endl; break;
+			case GattOpenStatus::AccessDenied: std::cout << "Access is denied." << std::endl; break;
+			default: break;
+		}
+	}
+}
+void Device::OnServicesRecived(IAsyncOperation<GattDeviceServicesResult> const &op, AsyncStatus const &state) {
+	if (asyncStatus(state) && gattCommunicationStatus(op.GetResults().Status())) {
+		GattDeviceServicesResult resServices = op.GetResults();
+
+		IVectorView<GattDeviceService> services = resServices.Services();
+		for (int i = 0; i < services.Size(); i++) {
+			if (services.GetAt(i).Uuid() == RobotControlService) {
+				controlService = services.GetAt(i);
+				std::cout << "	controlService optained" << std::endl;
+			}
+
+			if (services.GetAt(i).Uuid() == BLEService) {
+				serviceBLE = services.GetAt(i);
+				std::cout << "	BLEService optained" << std::endl;
+			}
+
+		}
+	}
+}
+void Device::OnCharacteristicsRecived(IAsyncOperation<GattCharacteristicsResult> const &op, AsyncStatus const &state) {
+	if (asyncStatus(state) && gattCommunicationStatus(op.GetResults().Status())) {
+		GattCharacteristicsResult resCharacteristics = op.GetResults();
+
+		IVectorView<GattCharacteristic> car = resCharacteristics.Characteristics();
+		//std::cout << car.Size() << std::endl;
 		for (int j = 0; j < car.Size(); j++) {
-			cout << "caracteristica " << j << endl;
+			if (car.GetAt(j).Uuid() == CommandsCharacteristic) {
+				commandsChar = car.GetAt(j);
+				std::cout << "	commandsChar optained for";
+			}
 
-			if (car.GetAt(j) != NULL) {
-				GattCharacteristicProperties p = car.GetAt(j).CharacteristicProperties();
+			if (car.GetAt(j).Uuid() == ResponseCharacteristic) {
+				responseChar = car.GetAt(j);
+				std::cout << "	responseChar optained for";
+			}
 
+			if (car.GetAt(j).Uuid() == AntiDosCharacteristicUUID) {
+				AntiDosCharacteristic = car.GetAt(j);
+				std::cout << "	AntiDosCharacteristic optained for";
+			}
+
+			if (car.GetAt(j).Uuid() == TXPowerCharacteristicUUID) {
+				TXPowerCharacteristic = car.GetAt(j);
+				std::cout << "	TXPowerCharacteristic optained for";
+			}
+
+			if (car.GetAt(j).Uuid() == WakeCharacteristicUUID) {
+				WakeCharacteristic = car.GetAt(j);
+				std::cout << "	WakeCharacteristic optained for";
+			}
+
+			if (car.GetAt(j).Uuid() == CommandsCharacteristic || car.GetAt(j).Uuid() == ResponseCharacteristic ||
+				car.GetAt(j).Uuid() == AntiDosCharacteristicUUID || car.GetAt(j).Uuid() == TXPowerCharacteristicUUID || car.GetAt(j).Uuid() == WakeCharacteristicUUID) {
 				
-				if ((p & GattCharacteristicProperties::Read) == GattCharacteristicProperties::Read) {
-					cout << "Read" << endl;
-					readableChar.push_back(car.GetAt(j));
-					read(car.GetAt(j));
+				GattCharacteristicProperties p = car.GetAt(j).CharacteristicProperties();
+				if ((p & GattCharacteristicProperties::Read) == GattCharacteristicProperties::Read) { std::cout << " Read"; }
+				if ((p & GattCharacteristicProperties::Write) == GattCharacteristicProperties::Write) { std::cout << " Write"; }
+				if ((p & GattCharacteristicProperties::Notify) == GattCharacteristicProperties::Notify) { std::cout << " Notify"; }
+				if ((p & GattCharacteristicProperties::Indicate) == GattCharacteristicProperties::Indicate) { std::cout << " The characteristic is indicatable"; }
+				if ((p & GattCharacteristicProperties::Broadcast) == GattCharacteristicProperties::Broadcast) { std::cout << " Broadcast " << endl; }
+				if ((p & GattCharacteristicProperties::ExtendedProperties) == GattCharacteristicProperties::ExtendedProperties) { std::cout << " ExtendedProperties"; }
+				if ((p & GattCharacteristicProperties::ReliableWrites) == GattCharacteristicProperties::ReliableWrites) { std::cout << " ReliableWrites"; }
+				if ((p & GattCharacteristicProperties::WritableAuxiliaries) == GattCharacteristicProperties::WritableAuxiliaries) { std::cout << " WritableAuxiliaries"; }
+				if ((p & GattCharacteristicProperties::WriteWithoutResponse) == GattCharacteristicProperties::WriteWithoutResponse) { std::cout << " WriteWithoutResponse"; }
+				std::cout << std::endl;
+
+				/*IVectorView<GattDescriptor> des = car.GetAt(j).GetAllDescriptors();
+				std::cout << des.Size() << std::endl;
+				stringstream res;
+				for (int k = 0; k < des.Size(); k++) {
+					if (des.GetAt(k) != NULL) {
+						responseDesc = des.GetAt(k);
+						winrt::guid uuid = des.GetAt(k).Uuid();
+						res << "\t\tDescriptor UUID: " << hex << static_cast<int>(uuid.Data1) << hex << static_cast<int>(uuid.Data2) << hex << static_cast<int>(uuid.Data3);
+						res << hex << static_cast<int>(uuid.Data4[0]) << hex << static_cast<int>(uuid.Data4[1]) << hex << static_cast<int>(uuid.Data4[2]);
+						res << hex << static_cast<int>(uuid.Data4[3]) << hex << static_cast<int>(uuid.Data4[4]) << hex << static_cast<int>(uuid.Data4[5]);
+						res << hex << static_cast<int>(uuid.Data4[6]) << hex << static_cast<int>(uuid.Data4[7]) << endl;
+					}
 				}
 
-				if ((p & GattCharacteristicProperties::Write) == GattCharacteristicProperties::Write) {
-					cout << "Write" << endl;
-					writableChar.push_back(car.GetAt(j));
-					write(car.GetAt(j), {0xFF, 0xFE, 0x00, 0x01, 0x01, 0x01, 0x02});
-				}
-
-				if ((p & GattCharacteristicProperties::Notify) == GattCharacteristicProperties::Notify) {
-					cout << "Notify" << endl;
-					notifiableChar.push_back(car.GetAt(j));
-					notify(car.GetAt(j));
-				}
-
-				if ((p & GattCharacteristicProperties::Indicate) == GattCharacteristicProperties::Indicate) {
-					cout << "The characteristic is indicatable." << endl;
-					indicatableChar.push_back(car.GetAt(j));
-					indicate(car.GetAt(j));
-				}
+				std::cout << res.str() << std::endl;*/
 			}
 		}
 	}
 }
 
-void Device::read(GattCharacteristic charac) {
-	IAsyncOperation<GattReadResult> op = charac.ReadValueAsync();
-	op.Completed({ this, &Device::OnCompletedRead });
-	std::cout << "Reading..." << std::endl;
-
-	while (op.Status() != AsyncStatus::Completed);
-	Sleep(100);
+void Device::OnDescriptorWrite(IAsyncOperation<GattCommunicationStatus> const &op, AsyncStatus const &state) {
+	if (asyncStatus(state) && gattCommunicationStatus(op.GetResults())) {}
 }
-
-void Device::write(GattCharacteristic charac, vector<uint8_t> data) {
-	DataWriter wr = DataWriter();
-
-	for (size_t idx = 0; idx < data.size(); ++idx) {
-		wr.WriteByte(data[idx]);
+void Device::OnDescriptorWriteWithResult(IAsyncOperation<GattWriteResult> const &op, AsyncStatus const &state) {
+	if (asyncStatus(state) && gattCommunicationStatus(op.GetResults().Status())) {
+		GattWriteResult res = op.GetResults();
 	}
-
-	#ifdef BLE_DEBUG
-		std::stringstream mss;
-		mss << "[SEND][" << setw(3) << data.size() << "B] ";
-		for (size_t idx = 0; idx < data.size(); ++idx) {
-			mss << std::uppercase << setw(2) << setfill('0') << hex << static_cast<int>(data[idx]) << " ";
+}
+void Device::OnDescriptorRead(IAsyncOperation<GattReadClientCharacteristicConfigurationDescriptorResult> const &op, AsyncStatus const &state) {
+	if (asyncStatus(state) && gattCommunicationStatus(op.GetResults().Status())) {
+		GattReadClientCharacteristicConfigurationDescriptorResult res = op.GetResults();
+		std::cout << "	Descriptor results: ";
+		switch (res.ClientCharacteristicConfigurationDescriptor()) {
+			case GattClientCharacteristicConfigurationDescriptorValue::None: std::cout << "Neither notification nor indications are enabled." << std::endl; break;
+			case GattClientCharacteristicConfigurationDescriptorValue::Notify: std::cout << "Characteristic notifications are enabled." << std::endl; break;
+			case GattClientCharacteristicConfigurationDescriptorValue::Indicate: std::cout << "Characteristic indications are enabled." << std::endl; break;
+			default: break;
 		}
-		std::cout << mss.str() << std::endl;
-	#endif
-	
-	IAsyncOperation<GattCommunicationStatus> op = charac.WriteValueAsync(wr.DetachBuffer());
-	op.Completed({ this, &Device::OnCompletedWrite });
-	std::cout << "Writing..." << std::endl;
-
-	while (op.Status() != AsyncStatus::Completed);
-	Sleep(100);
-}
-
-void Device::notify(GattCharacteristic charac) {
-	IAsyncOperation<GattCommunicationStatus> op = charac.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue::Notify);
-	op.Completed({ this, &Device::OnCompletedNotify });
-	std::cout << "Notifying..." << std::endl;
-
-	while (op.Status() != AsyncStatus::Completed);
-	charac.ValueChanged({ this, &Device::OnNotify });
-	Sleep(100);
-}
-
-void Device::indicate(GattCharacteristic charac) {
-	IAsyncOperation<GattCommunicationStatus> op = charac.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue::Indicate);
-	op.Completed({ this, &Device::OnCompletedIndicate });
-	std::cout << "indicating..." << std::endl;
-
-	while (op.Status() != AsyncStatus::Completed);
-	charac.ValueChanged({ this, &Device::OnIndicate });
-	Sleep(100);
+	}
 }
 
 void Device::OnCompletedRead(IAsyncOperation<GattReadResult> const &op, AsyncStatus const &state) {
-	GattReadResult msg = op.GetResults();
-	DataReader data = DataReader::FromBuffer(msg.Value());
-	uint32_t nBytes = data.UnconsumedBufferLength();
-	
-	if (msg.Status() == GattCommunicationStatus::Success) {
+	if (asyncStatus(state) && gattCommunicationStatus(op.GetResults().Status())) {
+		GattReadResult msg = op.GetResults();
+		
+		DataReader data = DataReader::FromBuffer(msg.Value());
+		uint32_t nBytes = data.UnconsumedBufferLength();
+
 		#ifdef BLE_DEBUG
+			std::cout << "Buffer length: " << msg.Value().Length() << std::endl;
 			std::stringstream mss;
 			mss << "[RECV][" << setw(3) << nBytes << "B] ";
 			for (size_t idx = 0; idx < nBytes; ++idx) {
@@ -133,227 +362,61 @@ void Device::OnCompletedRead(IAsyncOperation<GattReadResult> const &op, AsyncSta
 			}
 			std::cout << mss.str() << std::endl;
 		#endif
-	} else {
-		switch (msg.Status()) {
-			case GattCommunicationStatus::Unreachable: cerr << "No communication can be performed with the device, at this time." << endl; break;
-			case GattCommunicationStatus::ProtocolError: cerr << "There was a GATT communication protocol error." << endl; break;
-			case GattCommunicationStatus::AccessDenied: cerr << "Access is denied." << endl; break;
-			default: break;
-		}
 	}
-
-	cout << to_string(data.ReadString(nBytes)) << endl;
 }
-
 void Device::OnCompletedWrite(IAsyncOperation<GattCommunicationStatus> const &op, AsyncStatus const &state) {
-	switch (op.GetResults()) {
-		case GattCommunicationStatus::Success: cout << "The operation completed successfully." << endl; break;
-		case GattCommunicationStatus::Unreachable: cerr << "No communication can be performed with the device, at this time." << endl; break;
-		case GattCommunicationStatus::ProtocolError: cerr << "There was a GATT communication protocol error." << endl; break;
-		case GattCommunicationStatus::AccessDenied: cerr << "Access is denied." << endl; break;
-		default: break;
+	if ( asyncStatus(state) && gattCommunicationStatus(op.GetResults()) ) { //.Status())) {
+		GattCommunicationStatus write = op.GetResults();
 	}
+		
 }
-
-void Device::OnCompletedNotify(IAsyncOperation<GattCommunicationStatus> const &op, AsyncStatus const &state) {
-	switch (op.GetResults()) {
-		case GattCommunicationStatus::Success: cout << "The operation completed successfully." << endl; break;
-		case GattCommunicationStatus::Unreachable: cerr << "No communication can be performed with the device, at this time." << endl; break;
-		case GattCommunicationStatus::ProtocolError: cerr << "There was a GATT communication protocol error." << endl; break;
-		case GattCommunicationStatus::AccessDenied: cerr << "Access is denied." << endl; break;
-		default: break;
-	}
-}
-
-void Device::OnCompletedIndicate(IAsyncOperation<GattCommunicationStatus> const &op, AsyncStatus const &state) {
-	switch (op.GetResults()) {
-	case GattCommunicationStatus::Success: cout << "The operation completed successfully." << endl; break;
-	case GattCommunicationStatus::Unreachable: cerr << "No communication can be performed with the device, at this time." << endl; break;
-	case GattCommunicationStatus::ProtocolError: cerr << "There was a GATT communication protocol error." << endl; break;
-	case GattCommunicationStatus::AccessDenied: cerr << "Access is denied." << endl; break;
-	default: break;
-	}
-}
-
-void Device::OnNotify(GattCharacteristic  const & watcher, GattValueChangedEventArgs  const & args) {
-	DataReader data = DataReader::FromBuffer(args.CharacteristicValue());
-	uint32_t nBytes = data.UnconsumedBufferLength();
-
-	#ifdef BLE_DEBUG
-		std::stringstream mss;
-		mss << "[RECV][" << setw(3) << nBytes << "B] ";
-		for (size_t idx = 0; idx < nBytes; ++idx) {
-			mss << uppercase << setw(2) << setfill('0') << hex << static_cast<int>(data.ReadByte()) << " ";
-		}
-		std::cout << mss.str() << std::endl;
-	#endif
-
-	cout << to_string(data.ReadString(nBytes)) << endl;
-}
-
-void Device::OnIndicate(GattCharacteristic  const & watcher, GattValueChangedEventArgs  const & args) {
-	DataReader data = DataReader::FromBuffer(args.CharacteristicValue());
-	uint32_t nBytes = data.UnconsumedBufferLength();
-
-	#ifdef BLE_DEBUG
-		std::stringstream mss;
-		mss << "[RECV][" << setw(3) << nBytes << "B] ";
-		for (size_t idx = 0; idx < nBytes; ++idx) {
-			mss << uppercase << setw(2) << setfill('0') << hex << static_cast<int>(data.ReadByte()) << " ";
-		}
-		std::cout << mss.str() << std::endl;
-	#endif
-
-	cout << to_string(data.ReadString(nBytes)) << endl;
-}
-
-string Device::getName() {
-	return to_string(device.Name());
-}
-
-string Device::getDeviceId() {
-	return to_string(device.DeviceId());
-}
-
-string Device::getBluetoothDeviceId() {
-	return to_string(device.BluetoothDeviceId().Id() );
-}
-
-ULONG Device::getBluetoothAddress() {
-	return device.BluetoothAddress();
-}
-
-string Device::getBluetoothAddressType() {
-	string res = " ";
-	switch (device.BluetoothAddressType()) {
-		case BluetoothAddressType::Public: res = "Public address."; break;
-		case BluetoothAddressType::Random: res = "Random address."; break;
-		case BluetoothAddressType::Unspecified: res = "Unspecified address."; break;
-		default: break;
-	}
-	return res;
-}
-
-string Device::getConnectionStatus() {
-	string res = " ";
-	switch (device.ConnectionStatus()) {
-		case BluetoothConnectionStatus::Connected: res = "The device is connected."; break;
-		case BluetoothConnectionStatus::Disconnected: res = "The device is disconnected."; break;
-		default: break;
-	}
-	return res;
-}
-
-string Device::getDeviceAccessInformation() {
-	string res = " ";
-	switch (device.DeviceAccessInformation().CurrentStatus()) {
-		case DeviceAccessStatus::Allowed: res = "Access to the device is allowed."; break;
-		case DeviceAccessStatus::DeniedBySystem: res = "Access to the device has been disallowed by the system."; break;
-		case DeviceAccessStatus::DeniedByUser: res = "Access to the device has been disallowed by the user."; break;
-		case DeviceAccessStatus::Unspecified: res = "The device access is not specified."; break;
-		default: break;
-	}
-	return res;
-}
-
-string Device::getDeviceInformation() {
-	cout << "Not implemented" << endl;
-	return " ";
-}
-
-string Device::getAll() {
-	IVectorView<GattDeviceService> services = device.GattServices();
+void Device::OnNotify(GattCharacteristic  const &characteristic, GattValueChangedEventArgs  const &args) {
+	if (characteristic == commandsChar) {
+		std::cout << "Device ready to use" << std::endl;
 	
-	std::cout << services.Size() << std::endl;
-
-	stringstream res;
-	for (int i = 0; i < services.Size(); i++) {
-		if (services.GetAt(i) != NULL) {
-			winrt::guid uuid = services.GetAt(i).Uuid();
-			res << "Service UUID: " << static_cast<int>(uuid.Data1) << static_cast<int>(uuid.Data2) << static_cast<int>(uuid.Data3);
-			res << static_cast<int>(uuid.Data4[0]) << static_cast<int>(uuid.Data4[1]) << static_cast<int>(uuid.Data4[2]);
-			res << static_cast<int>(uuid.Data4[3]) << static_cast<int>(uuid.Data4[4]) << static_cast<int>(uuid.Data4[5]);
-			res << static_cast<int>(uuid.Data4[6]) << static_cast<int>(uuid.Data4[7]) << endl;
-
-			IVectorView<GattCharacteristic> car = services.GetAt(i).GetAllCharacteristics();
-			for (int j = 0; j < car.Size(); j++) {
-				if (car.GetAt(j) != NULL) {
-					uuid = car.GetAt(j).Uuid();
-					res << "\tCharacteristic UUID: " << static_cast<int>(uuid.Data1) << static_cast<int>(uuid.Data2) << static_cast<int>(uuid.Data3);
-					res << static_cast<int>(uuid.Data4[0]) << static_cast<int>(uuid.Data4[1]) << static_cast<int>(uuid.Data4[2]);
-					res << static_cast<int>(uuid.Data4[3]) << static_cast<int>(uuid.Data4[4]) << static_cast<int>(uuid.Data4[5]);
-					res << static_cast<int>(uuid.Data4[6]) << static_cast<int>(uuid.Data4[7]) << endl;
-
-					res << "\t\tDescription: " << to_string(car.GetAt(j).UserDescription()) << endl;
-					res << "\t\tProperties: " << endl;
-					res << getCharacteristicProperties(car.GetAt(j).CharacteristicProperties());
-					//res << "\t\tPresentation Format: " << endl;
-					//res << getGattPresentationFormat(car.GetAt(j).PresentationFormats());
-
-					IVectorView<GattDescriptor> des = car.GetAt(j).GetAllDescriptors();
-					for (int k = 0; k < des.Size(); k++) {
-						if (des.GetAt(k) != NULL) {
-							uuid = des.GetAt(k).Uuid();
-							res << "\t\tDescriptor UUID: " << static_cast<int>(uuid.Data1) << static_cast<int>(uuid.Data2) << static_cast<int>(uuid.Data3);
-							res << static_cast<int>(uuid.Data4[0]) << static_cast<int>(uuid.Data4[1]) << static_cast<int>(uuid.Data4[2]);
-							res << static_cast<int>(uuid.Data4[3]) << static_cast<int>(uuid.Data4[4]) << static_cast<int>(uuid.Data4[5]);
-							res << static_cast<int>(uuid.Data4[6]) << static_cast<int>(uuid.Data4[7]) << endl;
-						}
-					}
-				}
-			}
-		}
-		res << endl;
+	} else {
+		std::cout << "HAY ALGO PARA LEER" << std::endl;
+		read(characteristic);
 	}
-
-	return res.str();
 }
 
-string Device::getCharacteristicProperties(GattCharacteristicProperties p) {
-	
-	stringstream res;
-	if ((p & GattCharacteristicProperties::None) == GattCharacteristicProperties::None) {
-		res << "\t\t\tThe characteristic doesn’t have any properties that apply." << endl;
+bool Device::asyncStatus(AsyncStatus res) {
+#ifdef BLE_DEBUG
+	std::cout << "	Status Operation: ";
+	switch (res) {
+		case AsyncStatus::Started: std::cout << "The operation has started." << std::endl; break;
+		case AsyncStatus::Completed: std::cerr << "The operation has completed." << std::endl; break;
+		case AsyncStatus::Canceled: std::cerr << "The operation was canceled." << std::endl; break;
+		case AsyncStatus::Error: std::cerr << "The operation has encountered an error." << std::endl; break;
+		default: break;
 	}
-	if ((p & GattCharacteristicProperties::Broadcast) == GattCharacteristicProperties::Broadcast) {
-		res << "\t\t\tThe characteristic supports broadcasting." << endl;
+#endif
+	switch (res) {
+		case AsyncStatus::Started: return false; break;
+		case AsyncStatus::Completed: return true; break;
+		case AsyncStatus::Canceled: return false; break;
+		case AsyncStatus::Error: return false; break;
+		default: break;
 	}
-	if ((p & GattCharacteristicProperties::Read) == GattCharacteristicProperties::Read) {
-		res << "\t\t\tThe characteristic is readable." << endl;
-	}
-	if ((p & GattCharacteristicProperties::WriteWithoutResponse) == GattCharacteristicProperties::WriteWithoutResponse) {
-		res << "\t\t\tThe characteristic supports Write Without Response." << endl;
-	}
-	if ((p & GattCharacteristicProperties::Write) == GattCharacteristicProperties::Write) {
-		res << "\t\t\tThe characteristic is writable." << endl;
-	}
-	if ((p & GattCharacteristicProperties::Notify) == GattCharacteristicProperties::Notify) {
-		res << "\t\t\tThe characteristic is notifiable." << endl;
-	}
-	if ((p & GattCharacteristicProperties::Indicate) == GattCharacteristicProperties::Indicate) {
-		res << "\t\t\tThe characteristic is indicatable." << endl;
-	}
-	if ((p & GattCharacteristicProperties::AuthenticatedSignedWrites) == GattCharacteristicProperties::AuthenticatedSignedWrites) {
-		res << "\t\t\tThe characteristic supports signed writes." << endl;
-	}
-	if ((p & GattCharacteristicProperties::ExtendedProperties) == GattCharacteristicProperties::ExtendedProperties) {
-		res << "\t\t\tThe ExtendedProperties Descriptor is present." << endl;
-	}
-	if ((p & GattCharacteristicProperties::ReliableWrites) == GattCharacteristicProperties::ReliableWrites) {
-		res << "\t\t\tThe characteristic supports reliable writes." << endl;
-	}
-	if ((p & GattCharacteristicProperties::WritableAuxiliaries) == GattCharacteristicProperties::WritableAuxiliaries) {
-		res << "\t\t\tThe characteristic has writable auxiliaries." << endl;
-	}
-
-	return res.str();
+	return false;
 }
-
-string Device::getGattPresentationFormat(IVectorView<GattPresentationFormat> f) {
-
-	stringstream res;
-	for (int i = 0; i < f.Size(); i++) {
-		res << "\t\t\t" << f.GetAt(i).Description() << endl;
+bool Device::gattCommunicationStatus(GattCommunicationStatus res) {
+#ifdef BLE_DEBUG
+	std::cout << "	Status Communication: ";
+	switch (res) {
+		case GattCommunicationStatus::Success: std::cout << "The operation completed successfully." << std::endl; break;
+		case GattCommunicationStatus::Unreachable: std::cout << "No communication can be performed with the device, at this time." << std::endl; break;
+		case GattCommunicationStatus::ProtocolError: std::cout << "There was a GATT communication protocol error." << std::endl; break;
+		case GattCommunicationStatus::AccessDenied: std::cout << "Access is denied." << std::endl; break;
+		default: break;
 	}
-	return res.str();
+#endif
+	switch (res) {
+		case GattCommunicationStatus::Success: return true; break;
+		case GattCommunicationStatus::Unreachable: return false; break;
+		case GattCommunicationStatus::ProtocolError: return false; break;
+		case GattCommunicationStatus::AccessDenied: return false; break;
+		default: break;
+	}
+	return false;
 }

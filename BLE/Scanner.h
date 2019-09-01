@@ -30,6 +30,8 @@ using namespace std;
 using namespace bth;
 using namespace utils;
 
+//#define BLE_DEBUG
+
 class Scanner {
 	private:
 		winrt::hstring name;
@@ -42,12 +44,14 @@ class Scanner {
 		Scanner(winrt::hstring n, uint64_t a);
 		void start();
 		void stop();
+
 		string getData();
 		string getFlags();
 		string getLocalName();
 		string getManufacturerData();
 		string getServices();
 		BluetoothLEDevice getDevice();
+
 		void OnAdvertisementRecieved(BluetoothLEAdvertisementWatcher const& watcher, BluetoothLEAdvertisementReceivedEventArgs const& args);
 		void OnAdvertisementStopped(BluetoothLEAdvertisementWatcher const & watcher, BluetoothLEAdvertisementWatcherStoppedEventArgs const & args);
 		void OnCompletedTask(IAsyncOperation<BluetoothLEDevice> const &op, AsyncStatus const &state);

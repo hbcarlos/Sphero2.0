@@ -119,10 +119,12 @@
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="MainBLE.cpp" />
     <ClCompile Include="Scanner.cpp" />
+    <ClCompile Include="ScannerDI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Device.h" />
     <ClInclude Include="Scanner.h" />
+    <ClInclude Include="ScannerDI.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Comandos.txt" />

@@ -18,18 +18,24 @@
     <ClCompile Include="MainBLE.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="Scanner.cpp">
+    <ClCompile Include="Device.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="Device.cpp">
+    <ClCompile Include="ScannerDI.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
+    <ClCompile Include="Scanner.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Scanner.h">
+    <ClInclude Include="Device.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="Device.h">
+    <ClInclude Include="ScannerDI.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="Scanner.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
